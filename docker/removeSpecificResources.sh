@@ -17,6 +17,7 @@ else
 fi
 
 target_dir="/opt/fhir/archived/$(date +%F)"
+moved=0
 
 for line_item in $RESOURCE_LIST
 do
@@ -33,9 +34,19 @@ do
 		target="$target_dir$item"
 		docker $TARGET_PREFIX exec $CONTAINER_NAME mkdir -p $(dirname $target)
 		docker $TARGET_PREFIX exec $CONTAINER_NAME mv $item $target
+		let "moved += 1"
 	        echo "Archived resource: $target"
 	else
 		echo "ILLEGAL ITEM - IGNORING: $line_item"
 	fi
 done
+
+if [ "$moved" -gt "0" ]; then
+   echo
+   echo "$moved files moved to the archive - refreshing cache now..."
+   echo
+   source refreshCache.sh
+else
+   echo "No files removed!"
+fi
 
