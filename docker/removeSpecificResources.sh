@@ -8,6 +8,7 @@
 TARGET_HOST=${1:-$TARGET_HOST}
 CONTAINER_NAME=${2:-${CONTAINER_NAME:-fhir-server}}
 RESOURCE_LIST=${RESOURCE_LIST}
+COMMENT=${COMMENT}
 
 if [ -z $TARGET_HOST ]
 then
@@ -17,6 +18,13 @@ else
 fi
 
 target_dir="/opt/fhir/archived/$(date +%F)"
+report_file="../output/Archive-Results-$(date +%F-%R).txt"
+echo "Resource delete job run on: $(date)" > $report_file
+echo "Comments:" >> $report_file
+echo "$COMMENT" >> $report_file
+echo "" >> $report_file
+echo "Outputs of delete job:" >> $report_file
+
 moved=0
 
 for line_item in $RESOURCE_LIST
@@ -35,14 +43,14 @@ do
 		docker $TARGET_PREFIX exec $CONTAINER_NAME mkdir -p $(dirname $target)
 		docker $TARGET_PREFIX exec $CONTAINER_NAME mv $item $target
 		let "moved += 1"
-	        echo "Archived resource: $target"
+	        echo "Archived resource: $target"  >> $report_file
 	else
-		echo "ILLEGAL ITEM - IGNORING: $line_item"
+		echo "ILLEGAL ITEM - IGNORING: $line_item"  >> $report_file
 	fi
 done
 
 if [ "$moved" -gt "0" ]; then
-   echo
+   cat $report_file
    echo "$moved files moved to the archive - refreshing cache now..."
    echo
    source refreshCache.sh
