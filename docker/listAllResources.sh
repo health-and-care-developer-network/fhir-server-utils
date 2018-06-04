@@ -15,7 +15,7 @@ else
 fi
 
 echo "Retrieving list of profiles reference servers"
-echo "List of resources - generated: $(date)" > ../resourceList.txt
-docker $TARGET_PREFIX exec $CONTAINER_NAME find /opt/fhir -name *.xml >> ../resourceList.txt
+echo "List of resources - generated: $(date)" > ../output/resourceList.txt
+docker $TARGET_PREFIX exec $CONTAINER_NAME find /opt/fhir -name *.xml >> ../output/resourceList.txt
 
 
